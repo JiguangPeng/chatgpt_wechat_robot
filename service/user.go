@@ -10,7 +10,7 @@ import (
 // UserServiceInterface 用户业务接口
 type UserServiceInterface interface {
 	GetUserSessionContext() string
-	SetUserSessionContext(question, reply string)
+	SetUserSessionContext(reply string)
 	ClearUserSessionContext()
 }
 
@@ -22,6 +22,7 @@ type UserService struct {
 	cache *cache.Cache
 	// 用户
 	user *openwechat.User
+
 }
 
 // NewUserService 创建新的业务层
@@ -44,19 +45,11 @@ func (s *UserService) GetUserSessionContext() string {
 	if !ok {
 		return ""
 	}
-
-	// 2.如果字符长度超过等于4000，强制清空会话（超过GPT会报错）。
-	contextText := sessionContext.(string)
-	if len(contextText) >= 4000 {
-		s.cache.Delete(s.user.ID())
-	}
-
-	// 3.返回上文
-	return contextText
+	// 3.返回conversation_id
+	return sessionContext.(string)
 }
 
 // SetUserSessionContext 设置用户会话上下文文本，question用户提问内容，GTP回复内容
-func (s *UserService) SetUserSessionContext(question, reply string) {
-	value := question + "\n" + reply
-	s.cache.Set(s.user.ID(), value, time.Second*config.LoadConfig().SessionTimeout)
+func (s *UserService) SetUserSessionContext(conversation_id string) {
+	s.cache.Set(s.user.ID(), conversation_id, time.Second*config.LoadConfig().SessionTimeout)
 }

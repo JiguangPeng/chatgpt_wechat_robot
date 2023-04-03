@@ -113,9 +113,9 @@ func LoadConfig() *Configuration {
 		}
 
 	})
-	if config.ApiKey == "" {
-		logger.Danger("config error: api key required")
-	}
+	//if config.ApiKey == "" {
+	//	logger.Danger("config error: api key required")
+	//}
 
 	return config
 }
